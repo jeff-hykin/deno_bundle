@@ -1,1 +1,14 @@
-`deno install -n deno_bundle -A https://deno.land/x/deno_bundle/main.js`
+## Deno Bundle Successor
+
+This adapts esbuild to play nice with Deno and behave like `deno bundle`.
+The main goal is to "just work" along with minimal config.
+
+# Installation
+```sh
+deno install -n deno_bundle -Af https://raw.githubusercontent.com/jeff-hykin/deno_bundle/master/main.js
+```
+
+# Usage
+```sh
+deno_bundle ./something.js > something.bundle.js
+```
