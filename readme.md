@@ -1,0 +1,1 @@
+`deno install -n deno_bundle -A https://deno.land/x/deno_bundle/main.js`
