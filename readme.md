@@ -10,5 +10,8 @@ deno install -n deno_bundle -Af https://raw.githubusercontent.com/jeff-hykin/den
 
 # Usage
 ```sh
+deno_bundle --help
 deno_bundle ./something.js > something.bundle.js
+deno_bundle ./something.js --minify > something.bundle.js
+deno_bundle ./something.js --outfile something.bundle.js
 ```

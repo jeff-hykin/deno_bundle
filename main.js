@@ -96,6 +96,7 @@ ${green.bold`notes`}:
 
 ${green.bold`examples`}:
     ${green`deno_bundle`} my_file.js
+    ${green`deno_bundle`} my_file.js --minify
     ${green`deno_bundle`} my_file.js ${cyan`--outfile`} my_file.bundle.js
     ${green`deno_bundle`} my_file.js ${cyan`--mainFields`} '["field1", "field2"]'
 `)
