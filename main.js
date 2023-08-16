@@ -12,7 +12,36 @@ import { Console, clearAnsiStylesFrom, black, white, red, green, blue, yellow, c
 // TODO:
     // --watch option
     // plugins from CLI
-
+const nodeBuiltinImports = [
+    "node:assert",
+    "node:buffer",
+    "node:child_process",
+    "node:cluster",
+    "node:crypto",
+    "node:dgram",
+    "node:dns",
+    "node:domain",
+    "node:events",
+    "node:fs",
+    "node:http",
+    "node:https",
+    "node:net",
+    "node:os",
+    "node:path",
+    "node:punycode",
+    "node:querystring",
+    "node:readline",
+    "node:stream",
+    "node:string_decoder",
+    "node:timers",
+    "node:tls",
+    "node:tty",
+    "node:url",
+    "node:util",
+    "node:v8",
+    "node:vm",
+    "node:zlib",
+]
 const flags = parse(Deno.args, {
     boolean: [
         "help",
@@ -132,7 +161,10 @@ ${green.bold`examples`}:
             },
             httpImports(),
         ],
-        // write: false,
         ...flags,
+        external: [
+            ...nodeBuiltinImports,
+            ...(flags?.external||[])
+        ]
     })
 }
