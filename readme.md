@@ -5,7 +5,7 @@ The main goal is to "just work" along with minimal config.
 
 # Installation
 ```sh
-deno install -n deno_bundle -Af https://raw.githubusercontent.com/jeff-hykin/deno_bundle/master/main.js
+deno install -n deno_bundle -Afr https://raw.githubusercontent.com/jeff-hykin/deno_bundle/master/main.js
 ```
 
 # Usage
