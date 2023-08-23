@@ -5,7 +5,7 @@ echo "1.35.3"; : --% ' |out-null <#';};v="$(dv)";d="$HOME/.deno/$v/bin/deno";if 
 
 import { build } from "https://deno.land/x/esbuild@v0.18.17/mod.js"
 // import { BuildOptions } from "https://deno.land/x/esbuild@v0.18.17/mod.js"
-import { httpImports } from "https://deno.land/x/esbuild_plugin_http_imports@v1.3.0/index.ts"
+import { denoPlugins } from "https://deno.land/x/esbuild_deno_loader@0.8.1/mod.ts"
 import { parse } from "https://deno.land/std@0.168.0/flags/mod.ts"
 import { Console, clearAnsiStylesFrom, black, white, red, green, blue, yellow, cyan, magenta, lightBlack, lightWhite, lightRed, lightGreen, lightBlue, lightYellow, lightMagenta, lightCyan, blackBackground, whiteBackground, redBackground, greenBackground, blueBackground, yellowBackground, magentaBackground, cyanBackground, lightBlackBackground, lightRedBackground, lightGreenBackground, lightYellowBackground, lightBlueBackground, lightMagentaBackground, lightCyanBackground, lightWhiteBackground, bold, reset, dim, italic, underline, inverse, strikethrough, gray, grey, lightGray, lightGrey, grayBackground, greyBackground, lightGrayBackground, lightGreyBackground, } from "https://deno.land/x/quickr@0.6.38/main/console.js"
 
@@ -159,11 +159,11 @@ ${green.bold`examples`}:
                     })
                 },
             },
-            httpImports(),
+            ...denoPlugins()
         ],
         ...flags,
         external: [
-            ...nodeBuiltinImports,
+            // ...nodeBuiltinImports,
             ...(flags?.external||[])
         ]
     })
