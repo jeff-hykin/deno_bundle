@@ -17,4 +17,6 @@ deno_bundle ./something.js > something.bundle.js
 deno_bundle https://esm.sh/something > something.bundle.js
 deno_bundle ./something.js --minify > something.bundle.js
 deno_bundle ./something.js --outfile something.bundle.js
+# force ASCII output
+deno_bundle ./something.js --charset ascii
 ```

@@ -46,8 +46,12 @@ const flags = parse(Deno.args, {
     boolean: [
         "help",
     ],
-    string: [],
-    default: {},
+    string: [
+        "charset",
+    ],
+    default: {
+        charset: "utf8",
+    },
 })
 const normal = flags._
 delete flags._
@@ -55,14 +59,18 @@ delete flags._
 if (flags.help) {
     console.log(`
 ${green.bold`options`}:
-    ${cyan`bundle`}: ${yellow`boolean`}
-        Documentation: https://esbuild.github.io/api/#bundle 
+    ${cyan`outfile`}: ${yellow`string`}
+        Documentation: https://esbuild.github.io/api/#outfile 
+    ${cyan`entryPoints`}: ${yellow`string[] | Record<string, string> | { in: string, out: string }[]`}
+        Documentation: https://esbuild.github.io/api/#entry-points 
+    ${cyan`entryNames`}: ${yellow`string`}
+        Documentation: https://esbuild.github.io/api/#entry-names 
+    ${cyan`allowOverwrite`}: ${yellow`boolean`}
+        Documentation: https://esbuild.github.io/api/#allow-overwrite 
     ${cyan`splitting`}: ${yellow`boolean`}
         Documentation: https://esbuild.github.io/api/#splitting 
     ${cyan`preserveSymlinks`}: ${yellow`boolean`}
         Documentation: https://esbuild.github.io/api/#preserve-symlinks 
-    ${cyan`outfile`}: ${yellow`string`}
-        Documentation: https://esbuild.github.io/api/#outfile 
     ${cyan`metafile`}: ${yellow`boolean`}
         Documentation: https://esbuild.github.io/api/#metafile 
     ${cyan`outdir`}: ${yellow`string`}
@@ -85,16 +93,12 @@ ${green.bold`options`}:
         Documentation: https://esbuild.github.io/api/#conditions 
     ${cyan`write`}: ${yellow`boolean`}
         Documentation: https://esbuild.github.io/api/#write 
-    ${cyan`allowOverwrite`}: ${yellow`boolean`}
-        Documentation: https://esbuild.github.io/api/#allow-overwrite 
     ${cyan`tsconfig`}: ${yellow`string`}
         Documentation: https://esbuild.github.io/api/#tsconfig 
     ${cyan`outExtension`}: ${yellow`{ [ext: string]: string }`}
         Documentation: https://esbuild.github.io/api/#out-extension 
     ${cyan`publicPath`}: ${yellow`string`}
         Documentation: https://esbuild.github.io/api/#public-path 
-    ${cyan`entryNames`}: ${yellow`string`}
-        Documentation: https://esbuild.github.io/api/#entry-names 
     ${cyan`chunkNames`}: ${yellow`string`}
         Documentation: https://esbuild.github.io/api/#chunk-names 
     ${cyan`assetNames`}: ${yellow`string`}
@@ -105,8 +109,6 @@ ${green.bold`options`}:
         Documentation: https://esbuild.github.io/api/#banner 
     ${cyan`footer`}: ${yellow`{ [type: string]: string }`}
         Documentation: https://esbuild.github.io/api/#footer 
-    ${cyan`entryPoints`}: ${yellow`string[] | Record<string, string> | { in: string, out: string }[]`}
-        Documentation: https://esbuild.github.io/api/#entry-points 
     ${""
         // ${cyan`stdin`}: ${yellow`StdinOptions`}
         //     Documentation: https://esbuild.github.io/api/#stdin 
@@ -119,8 +121,7 @@ ${green.bold`options`}:
 
 ${green.bold`notes`}:
     Some options (ex: aliases) don't really work directly from the CLI
-    In the future they will though, and feel free to open up a github
-    issue to get your option prioritized:
+    Feel free to open up a github issue to get your option prioritized:
         https://github.com/jeff-hykin/deno_bundle/issues/new
 
 ${green.bold`examples`}:
@@ -128,6 +129,7 @@ ${green.bold`examples`}:
     ${green`deno_bundle`} my_file.js --minify
     ${green`deno_bundle`} my_file.js ${cyan`--outfile`} my_file.bundle.js
     ${green`deno_bundle`} my_file.js ${cyan`--mainFields`} '["field1", "field2"]'
+    ${green`deno_bundle`} my_file.js ${cyan`--charset`} ascii
 `)
 } else {
     const stringArrays = [
