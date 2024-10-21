@@ -4,7 +4,7 @@ echo "1.35.3"; : --% ' |out-null <#';};v="$(dv)";d="$HOME/.deno/$v/bin/deno";if 
 # */0}`;
 
 // import { build } from "https://deno.land/x/esbuild@v0.18.17/mod.js"
-import { build } from "https://deno.land/x/esbuild@v0.24.0/mod.js"
+import { build, stop } from "https://deno.land/x/esbuild@v0.24.0/mod.js"
 // import { BuildOptions } from "https://deno.land/x/esbuild@v0.18.17/mod.js"
 // import { denoPlugins } from "https://deno.land/x/esbuild_deno_loader@0.8.1/mod.ts"
 import { denoPlugins } from "https://esm.sh/jsr/@duesabati/esbuild-deno-plugin@0.1.0/mod.ts"
@@ -47,7 +47,7 @@ const nodeBuiltinImports = [
 const flags = parse(Deno.args, {
     boolean: [
         "help",
-        "minify",
+        // "minify",
         "allowOverwrite",
         "splitting",
         "preserveSymlinks",
@@ -166,6 +166,8 @@ ${green.bold`examples`}:
                 "name": "exit-on-build",
                 "setup": (build) => {
                     build.onEnd((result) => {
+                        Deno.stdout.write(result.outputFiles[0].contents)
+                        stop().catch()
                         Deno.exit(result.errors.length)
                     })
                 },
