@@ -47,7 +47,7 @@ const nodeBuiltinImports = [
 const flags = parse(Deno.args, {
     boolean: [
         "help",
-        // "minify",
+        "minify",
         "allowOverwrite",
         "splitting",
         "preserveSymlinks",
