@@ -7,7 +7,7 @@ Note: this does not work with 3rd party npm modules, and likely will never suppo
 
 # Installation
 ```sh
-deno install -n deno_bundle -Afr https://raw.githubusercontent.com/jeff-hykin/deno_bundle/master/main.js
+deno install -n deno_bundle -Afrg https://raw.githubusercontent.com/jeff-hykin/deno_bundle/master/main.js
 ```
 
 # Usage
