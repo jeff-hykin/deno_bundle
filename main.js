@@ -180,7 +180,7 @@ ${green.bold`examples`}:
                         } else {
                             Promise.all([
                                 result.outputFiles.map(
-                                    each=>FileSystem.ensureIsFolder(FileSystem.dirname(eachOutput.path)).then(
+                                        eachOutput=>FileSystem.ensureIsFolder(FileSystem.dirname(eachOutput.path)).then(
                                         Deno.writeFile(eachOutput.path, eachOutput.contents).catch(console.error)
                                     )
                                 )
