@@ -4,7 +4,7 @@ echo "1.41.3"; : --% ' |out-null <#'; }; version="$(dv)"; deno="$HOME/.deno/$ver
 # */0}`;
 
 // import { build } from "https://deno.land/x/esbuild@v0.18.17/mod.js"
-import { build, stop } from "https://deno.land/x/esbuild@v0.24.0/mod.js"
+import { build, stop, context } from "https://deno.land/x/esbuild@v0.24.0/mod.js"
 // import { BuildOptions } from "https://deno.land/x/esbuild@v0.18.17/mod.js"
 // import { denoPlugins } from "https://deno.land/x/esbuild_deno_loader@0.8.1/mod.ts"
 import { denoPlugins } from "https://esm.sh/jsr/@duesabati/esbuild-deno-plugin@0.1.0/mod.ts"
@@ -13,7 +13,6 @@ import { Console, clearAnsiStylesFrom, black, white, red, green, blue, yellow, c
 import { FileSystem, glob } from "https://deno.land/x/quickr@0.6.72/main/file_system.js"
 
 // TODO:
-    // --watch option
     // plugins from CLI
 const nodeBuiltinImports = [
     "node:assert",
@@ -54,6 +53,7 @@ const flags = parse(Deno.args, {
         "preserveSymlinks",
         "metafile",
         "write",
+        "watch",
     ],
     string: [
         "charset",
@@ -156,47 +156,97 @@ ${green.bold`examples`}:
             flags[key] = JSON.parse(value)
         }
     }
+    const { watch } = flags
     delete flags.help
-    await build({
-        bundle: true,
-        entryPoints: normal,
-        jsxFactory: "h",
-        format: "esm",
-        plugins: [
-            {
-                "name": "handle-on-build",
-                "setup": (build) => {
-                    build.onEnd((result) => {
-                        if (result.outputFiles.length ==  1) {
-                            const eachOutput = result.outputFiles[0]
-                            const sendToStdout = eachOutput.path == "<stdout>" && !(flags.outfile || flags.outdir)
-                            if (sendToStdout) {
-                                Deno.stdout.write(eachOutput.contents)
-                            } else {
-                                FileSystem.ensureIsFolder(FileSystem.dirname(eachOutput.path)).then(
-                                    ()=>Deno.writeFile(eachOutput.path, eachOutput.contents).catch(console.error)
-                                )
-                            }
-                        } else {
-                            Promise.all([
-                                result.outputFiles.map(
-                                        eachOutput=>FileSystem.ensureIsFolder(FileSystem.dirname(eachOutput.path)).then(
-                                        Deno.writeFile(eachOutput.path, eachOutput.contents).catch(console.error)
+    delete flags.watch
+    if (!watch) {
+        await build({
+            bundle: true,
+            entryPoints: normal,
+            jsxFactory: "h",
+            format: "esm",
+            plugins: [
+                {
+                    "name": "handle-on-build",
+                    "setup": (build) => {
+                        build.onEnd((result) => {
+                            if (result.outputFiles.length ==  1) {
+                                const eachOutput = result.outputFiles[0]
+                                const sendToStdout = eachOutput.path == "<stdout>" && !(flags.outfile || flags.outdir)
+                                if (sendToStdout) {
+                                    Deno.stdout.write(eachOutput.contents)
+                                } else {
+                                    FileSystem.ensureIsFolder(FileSystem.dirname(eachOutput.path)).then(
+                                        ()=>Deno.writeFile(eachOutput.path, eachOutput.contents).catch(console.error)
                                     )
-                                )
-                            ]).catch(console.error)
-                        }
-                        stop().catch()
-                        Deno.exit(result.errors.length)
-                    })
+                                }
+                            } else {
+                                Promise.all([
+                                    result.outputFiles.map(
+                                        eachOutput=>FileSystem.ensureIsFolder(FileSystem.dirname(eachOutput.path)).then(
+                                            Deno.writeFile(eachOutput.path, eachOutput.contents).catch(console.error)
+                                        )
+                                    )
+                                ]).catch(console.error)
+                            }
+                            stop().catch()
+                            Deno.exit(result.errors.length)
+                        })
+                    },
                 },
-            },
-            ...denoPlugins()
-        ],
-        ...flags,
-        external: [
-            // ...nodeBuiltinImports,
-            ...(flags?.external||[])
-        ]
-    })
+                ...denoPlugins()
+            ],
+            ...flags,
+            external: [
+                // ...nodeBuiltinImports,
+                ...(flags?.external||[])
+            ]
+        })
+    } else {
+        if (!(flags.outfile || flags.outdir)) {
+            throw Error(`When using the --watch flag, there needs to either be an --outfile or --outdir argument`)
+        }
+        const ctx = await context({
+            bundle: true,
+            entryPoints: normal,
+            jsxFactory: "h",
+            format: "esm",
+            plugins: [
+                {
+                    "name": "handle-on-build",
+                    "setup": (build) => {
+                        build.onEnd((result) => {
+                            console.log(`(re)building`)
+                            if (result.outputFiles.length ==  1) {
+                                const eachOutput = result.outputFiles[0]
+                                const sendToStdout = eachOutput.path == "<stdout>" && !(flags.outfile || flags.outdir)
+                                if (sendToStdout) {
+                                    Deno.stdout.write(eachOutput.contents)
+                                } else {
+                                    FileSystem.ensureIsFolder(FileSystem.dirname(eachOutput.path)).then(
+                                        ()=>Deno.writeFile(eachOutput.path, eachOutput.contents).catch(console.error)
+                                    )
+                                }
+                            } else {
+                                Promise.all([
+                                    result.outputFiles.map(
+                                        eachOutput=>FileSystem.ensureIsFolder(FileSystem.dirname(eachOutput.path)).then(
+                                            Deno.writeFile(eachOutput.path, eachOutput.contents).catch(console.error)
+                                        )
+                                    )
+                                ]).catch(console.error)
+                            }
+                        })
+                    },
+                },
+                ...denoPlugins()
+            ],
+            ...flags,
+            external: [
+                // ...nodeBuiltinImports,
+                ...(flags?.external||[])
+            ]
+        })
+        await ctx.watch()
+    }
 }
