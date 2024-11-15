@@ -10,6 +10,7 @@ import { build, stop } from "https://deno.land/x/esbuild@v0.24.0/mod.js"
 import { denoPlugins } from "https://esm.sh/jsr/@duesabati/esbuild-deno-plugin@0.1.0/mod.ts"
 import { parse } from "https://deno.land/std@0.168.0/flags/mod.ts"
 import { Console, clearAnsiStylesFrom, black, white, red, green, blue, yellow, cyan, magenta, lightBlack, lightWhite, lightRed, lightGreen, lightBlue, lightYellow, lightMagenta, lightCyan, blackBackground, whiteBackground, redBackground, greenBackground, blueBackground, yellowBackground, magentaBackground, cyanBackground, lightBlackBackground, lightRedBackground, lightGreenBackground, lightYellowBackground, lightBlueBackground, lightMagentaBackground, lightCyanBackground, lightWhiteBackground, bold, reset, dim, italic, underline, inverse, strikethrough, gray, grey, lightGray, lightGrey, grayBackground, greyBackground, lightGrayBackground, lightGreyBackground, } from "https://deno.land/x/quickr@0.6.38/main/console.js"
+import { FileSystem, glob } from "https://deno.land/x/quickr@0.6.72/main/file_system.js"
 
 // TODO:
     // --watch option
@@ -163,10 +164,28 @@ ${green.bold`examples`}:
         format: "esm",
         plugins: [
             {
-                "name": "exit-on-build",
+                "name": "handle-on-build",
                 "setup": (build) => {
                     build.onEnd((result) => {
-                        Deno.stdout.write(result.outputFiles[0].contents)
+                        if (result.outputFiles.length ==  1) {
+                            const eachOutput = result.outputFiles[0]
+                            const sendToStdout = eachOutput.path == "<stdout>" && !(flags.outfile || flags.outdir)
+                            if (sendToStdout) {
+                                Deno.stdout.write(eachOutput.contents)
+                            } else {
+                                FileSystem.ensureIsFolder(FileSystem.dirname(eachOutput.path)).then(
+                                    ()=>Deno.writeFile(eachOutput.path, eachOutput.contents).catch(console.error)
+                                )
+                            }
+                        } else {
+                            Promise.all([
+                                result.outputFiles.map(
+                                    each=>FileSystem.ensureIsFolder(FileSystem.dirname(eachOutput.path)).then(
+                                        Deno.writeFile(eachOutput.path, eachOutput.contents).catch(console.error)
+                                    )
+                                )
+                            ]).catch(console.error)
+                        }
                         stop().catch()
                         Deno.exit(result.errors.length)
                     })
