@@ -43,6 +43,7 @@ const nodeBuiltinImports = [
     "node:v8",
     "node:vm",
     "node:zlib",
+    "node:inspector",
 ]
 const flags = parse(Deno.args, {
     boolean: [
