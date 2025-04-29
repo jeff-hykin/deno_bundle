@@ -7,7 +7,8 @@ echo "1.41.3"; : --% ' |out-null <#'; }; version="$(dv)"; deno="$HOME/.deno/$ver
 import { build, stop, context } from "https://deno.land/x/esbuild@v0.24.0/mod.js"
 // import { BuildOptions } from "https://deno.land/x/esbuild@v0.18.17/mod.js"
 // import { denoPlugins } from "https://deno.land/x/esbuild_deno_loader@0.9.0/mod.ts"
-import { denoPlugins } from "https://esm.sh/jsr/@duesabati/esbuild-deno-plugin@0.2.4/mod.ts"
+// import { denoPlugins } from "https://esm.sh/jsr/@duesabati/esbuild-deno-plugin@0.2.6/mod.ts"
+import { denoPlugins } from "https://esm.sh/jsr/@luca/esbuild-deno-loader@0.11.1/mod.ts"
 import { parse } from "https://deno.land/std@0.168.0/flags/mod.ts"
 import { Console, clearAnsiStylesFrom, black, white, red, green, blue, yellow, cyan, magenta, lightBlack, lightWhite, lightRed, lightGreen, lightBlue, lightYellow, lightMagenta, lightCyan, blackBackground, whiteBackground, redBackground, greenBackground, blueBackground, yellowBackground, magentaBackground, cyanBackground, lightBlackBackground, lightRedBackground, lightGreenBackground, lightYellowBackground, lightBlueBackground, lightMagentaBackground, lightCyanBackground, lightWhiteBackground, bold, reset, dim, italic, underline, inverse, strikethrough, gray, grey, lightGray, lightGrey, grayBackground, greyBackground, lightGrayBackground, lightGreyBackground, } from "https://deno.land/x/quickr@0.6.38/main/console.js"
 import { FileSystem, glob } from "https://deno.land/x/quickr@0.6.72/main/file_system.js"
@@ -43,6 +44,7 @@ const nodeBuiltinImports = [
     "node:v8",
     "node:vm",
     "node:zlib",
+    "node:inspector",
 ]
 const flags = parse(Deno.args, {
     boolean: [
@@ -198,7 +200,7 @@ ${green.bold`examples`}:
             ],
             ...flags,
             external: [
-                // ...nodeBuiltinImports,
+                ...nodeBuiltinImports,
                 ...(flags?.external||[])
             ]
         })
