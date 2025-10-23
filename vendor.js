@@ -6,11 +6,11 @@ import { FileSystem, glob } from "https://deno.land/x/quickr@0.8.6/main/file_sys
 function createLocalPath(parent, url) {
     parent = parent.replace(/\/$/, "")
     const sourceOfImport = new URL(url)
-    const localRelativePath = sourceOfImport.origin.slice(sourceOfImport.protocol.length+2) + sourceOfImport.pathname
-    return `${parent}/${localRelativePath}`
+    const localRelativePath = sourceOfImport.origin.slice(sourceOfImport.protocol.length).replace(/^\/+/,"") + sourceOfImport.pathname
+    return `${parent}/${localRelativePath}.js`
 }
 let alreadyStarted = {}
-function recursivelyVendor(text, source, newParent) {
+function recursivelyVendor(text, source, newParent, {topLevel=false}={}) {
     const id = JSON.stringify([text,source])
     // prevent infinite loops
     if (alreadyStarted[id]) {
@@ -20,6 +20,8 @@ function recursivelyVendor(text, source, newParent) {
     let promises = []
     const base = new URL(source).origin
     const relativeBase = base + new URL(source).pathname.split("/").slice(0, -1).join("/")
+    const targetPath = createLocalPath(newParent, source)
+    const parentPath = FileSystem.parentPath(targetPath)
     text = text.replaceAll(/((?:import|export|from)\s+)("(?:[^"\\]|\\.)+"|'(?:[^'\\]|\\.)+')/g, (_, group1, group2)=>{
         let relativeImportKinda = eval(group2)
         const isRelative = relativeImportKinda.startsWith(".")
@@ -32,7 +34,7 @@ function recursivelyVendor(text, source, newParent) {
         } else if (isAbsolute) {
             url = base + relativeImportKinda
         } else {
-            // hopefully http/https
+            // hopefully http/https/file
             url = relativeImportKinda
             if (url.startsWith("node:")) {
                 console.warn(`got a node import: ${url}`)
@@ -40,6 +42,10 @@ function recursivelyVendor(text, source, newParent) {
             }
         }
         let outputLocation = createLocalPath(newParent, url)
+        outputLocation = FileSystem.makeRelativePath({ from: parentPath, to: outputLocation })
+        if (!outputLocation.startsWith(".")) {
+            outputLocation = `./${outputLocation}`
+        }
         promises.push(
             fetch(url).then(r=>r.text()).then((text)=>{
                 recursivelyVendor(text, url, newParent)
@@ -47,8 +53,10 @@ function recursivelyVendor(text, source, newParent) {
         )
         return `${group1}${JSON.stringify(outputLocation)}`
     })
-
-    const targetPath = createLocalPath(newParent, source)
+    
+    if (topLevel) {
+        console.log(`entrypoint: ${targetPath}`)
+    }
     promises.push(FileSystem.write({path:targetPath, data: text, overwrite: true}))
     return Promise.all(promises)
 }
@@ -56,5 +64,6 @@ function recursivelyVendor(text, source, newParent) {
 await recursivelyVendor(
     await fetch(Deno.args[0]).then(r=>r.text()),
     Deno.args[0],
-    FileSystem.thisFolder + "/vendored/",
+    FileSystem.thisFolder + "/vendored.ignore/",
+    {topLevel:true},
 )
