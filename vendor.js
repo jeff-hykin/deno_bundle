@@ -36,8 +36,20 @@ function recursivelyVendor(text, source, newParent, {topLevel=false}={}) {
         } else {
             // hopefully http/https/file
             url = relativeImportKinda
-            if (url.startsWith("node:")) {
+            if (url.startsWith("node:") || url.startsWith("npm:")) {
                 console.warn(`got a node import: ${url}`)
+                return `${group1}${JSON.stringify(url)}`
+            }
+            // convert JSR to ESM.sh
+            if (url.startsWith("jsr:")) {
+                url = `https://esm.sh/jsr/${url.slice(4)}`
+            }
+
+            // raw npm imports
+            try {
+                new URL(url)
+            } catch (error) {
+                console.warn(`got a bad import: ${url}`)
                 return `${group1}${JSON.stringify(url)}`
             }
         }
