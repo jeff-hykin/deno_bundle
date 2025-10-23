@@ -1,5 +1,4 @@
 #!/usr/bin/env -S deno run --allow-all
-let baseText = fetch("https://esm.sh/@codemirror/lang-yaml?dev").then(r=>r.text())
 import { toCamelCase } from 'https://esm.sh/gh/jeff-hykin/good-js@1.18.2.0/source/flattened/to_camel_case.js'
 import { FileSystem, glob } from "https://deno.land/x/quickr@0.8.6/main/file_system.js"
 
