@@ -22,6 +22,7 @@ function recursivelyVendor(text, source, newParent, {topLevel=false}={}) {
     const relativeBase = base + new URL(source).pathname.split("/").slice(0, -1).join("/")
     const targetPath = createLocalPath(newParent, source)
     const parentPath = FileSystem.parentPath(targetPath)
+    // FIXME: this is a hack. Will have to do full parsing to get actual imports (see github/jeff-hykin/to-esm)
     text = text.replaceAll(/((?:import|export|from)\s+)("(?:[^"\\]|\\.)+"|'(?:[^'\\]|\\.)+')/g, (_, group1, group2)=>{
         let relativeImportKinda = eval(group2)
         const isRelative = relativeImportKinda.startsWith(".")
