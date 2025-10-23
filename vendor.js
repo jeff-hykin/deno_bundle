@@ -76,6 +76,6 @@ function recursivelyVendor(text, source, newParent, {topLevel=false}={}) {
 await recursivelyVendor(
     await fetch(Deno.args[0]).then(r=>r.text()),
     Deno.args[0],
-    FileSystem.thisFolder + "/vendored.ignore/",
+    FileSystem.pwd + "/vendored.ignore/",
     {topLevel:true},
 )
